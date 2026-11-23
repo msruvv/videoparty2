@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>VideoParty - Комната {{ room_id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .msg { padding: 6px 10px; margin: 4px 0; border-radius: 8px; max-width: 85%; word-wrap: break-word; }
+        .msg.self { background: #007bff; color: white; align-self: flex-end; }
+        .msg.other { background: #e9ecef; color: black; align-self: flex-start; }
+        .msg .user { font-weight: bold; font-size: 12px; display: block; margin-bottom: 2px; }
+        .msg.self .user { color: #d1e7ff; }
+        .msg.other .user { color: #555; }
+
+        /* Стили для кастомных контролов */
+        #custom-controls {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        #video-wrapper:hover #custom-controls {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center p-4">
+
+    <h1 class="text-2xl font-bold mb-4">Комната: {{ room_id }}</h1>
+
+    <div id="room-data"
+         data-room-id="{{ room_id }}"
+         data-username="{{ username }}"
+         data-user-id="{{ user_id }}"
+         data-initial-video-id="{{ initial_video_id or '' }}"
+         data-platform="{{ platform or 'youtube' }}"
+         class="hidden">
+    </div>
+
+    <div class="flex gap-6 items-start">
+
+        <!-- ЛЕВАЯ КОЛОНКА: Плеер + Поле смены видео -->
+        <div class="flex flex-col w-[640px]">
+
+            <!-- ОБЕРТКА ДЛЯ ВИДЕО (relative, чтобы панель была внутри) -->
+            <div id="video-wrapper" class="relative w-full h-[360px] bg-black">
+
+                <!-- Невидимый оверлей (перехватывает первый клик) -->
+                <div id="unlockOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:50; cursor:pointer;"></div>
+
+                <!-- Контейнер для плеера -->
+                <div id="player-container" class="w-full h-full"></div>
+
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ (внутри видео, внизу) -->
+                <div id="custom-controls" class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent text-white p-3 flex items-center gap-4 z-40">
+                    <button id="playPauseBtn" class="hover:text-blue-400 font-bold text-2xl w-8 text-center">▶</button>
+
+                    <div class="flex-1 flex items-center gap-2">
+                        <span id="currentTimeText" class="text-xs w-10 text-center">0:00</span>
+                        <input type="range" id="seekBar" min="0" max="100" value="0" class="flex-1 h-1 bg-gray-600 rounded cursor-pointer accent-blue-500">
+                        <span id="durationText" class="text-xs w-10 text-center">0:00</span>
+                    </div>
+
+                    <button id="volumeBtn" class="hover:text-blue-400 text-xl">🔊</button>
+                </div>
+            </div>
+
+            <div id="status" class="text-gray-500 mt-2">Подключение к серверу...</div>
+
+            <!-- Поле смены видео -->
+            <div class="mt-4 flex gap-2 w-full">
+                <input type="text" id="videoUrlInput" placeholder="Вставьте ссылку на YouTube, VK или Rutube"
+                       class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="changeVideoBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                    Сменить
+                </button>
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА: Чат -->
+        <div class="w-80 h-[360px] border border-gray-300 bg-white flex flex-col rounded-lg shadow-sm">
+            <div id="messages" class="flex-1 overflow-y-auto p-2 flex flex-col"></div>
+            <div class="flex border-t border-gray-300 p-2 gap-2">
+                <input type="text" id="textInput" placeholder="Сообщение..." class="flex-1 p-2 border rounded focus:outline-none">
+                <button id="sendBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">➤</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://vk.com/js/api/videoplayer.js"></script>
+    <script src="/static/index.js" type="module"></script>
+</body>
+</html>
